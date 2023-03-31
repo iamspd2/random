@@ -1,0 +1,72 @@
+<script type="text/javascript">
+  RED.nodes.registerType('text-input-list', {
+    category: 'function',
+    color: '#a6bbcf',
+    defaults: {
+      name: {value: ''},
+      inputs: {value: ['']}
+    },
+    inputs: 1,
+    outputs: function() {
+      return this.inputs.length;
+    },
+    icon: 'node-red/switch.png',
+    label: function() {
+      return this.name || 'text-input-list';
+    },
+    oneditprepare: function() {
+      // Create the input list UI elements
+      var node = this;
+      var inputList = $('#node-input-inputs');
+      inputList.empty();
+      for (var i = 0; i < node.inputs; i++) {
+        var input = $('<input>', {type: 'text', class: 'node-input'});
+        input.attr('placeholder', 'Input ' + (i + 1));
+        input.val(node.inputs[i]);
+        inputList.append(input);
+      }
+      
+      // Add a button to add new inputs
+      var addButton = $('<a>', {class: 'node-input-list-add', href: '#'});
+      addButton.text('Add input');
+      addButton.click(function() {
+        var input = $('<input>', {type: 'text', class: 'node-input'});
+        input.attr('placeholder', 'Input ' + (node.inputs + 1));
+        inputList.append(input);
+        node.inputs++;
+      });
+      inputList.after(addButton);
+      
+      // Add a button to remove inputs
+      var removeButton = $('<a>', {class: 'node-input-list-remove', href: '#'});
+      removeButton.text('Remove input');
+      removeButton.click(function() {
+        if (node.inputs > 1) {
+          inputList.children().last().remove();
+          node.inputs--;
+        }
+      });
+      addButton.after(removeButton);
+    },
+    oneditsave: function() {
+      // Update the input list in the node configuration
+      var inputList = $('#node-input-inputs');
+      var inputs = [];
+      inputList.children().each(function() {
+        inputs.push($(this).val());
+      });
+      this.inputs = inputs;
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="text-input-list">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-inputs"><i class="fa fa-list"></i> Inputs</label>
+    <div id="node-input-inputs" class="node-input-list"></div>
+  </div>
+</script>
