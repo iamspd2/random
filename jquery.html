@@ -1,0 +1,38 @@
+<script>
+   $(document).ready(function() {
+   
+	let codeMap = new Map();
+    codeMap.set("asdas","asdas");
+	let tempMap = new Map();
+  	let content = '<li>aaaa</li>';
+   	$('.add_btn').click(function() {
+        var code = $('#code').val();
+        if (!codeMap.has(code)) {
+        	console.log("**push**");
+        	codeMap.set(code, code);
+        }
+    });
+    
+    $('#myList').on('click', '.rem_btn', function(e) {
+    	e.preventDefault();
+        let key = $(this).parent('li').children('span').text();
+        console.log(key);
+        codeMap.delete(key);
+        $(this).parent('li').remove();
+    });
+    
+   	
+    setInterval(function() {
+    	if (codeMap.size != tempMap.size) {
+        console.log("**diff**");
+        	$('#myList').empty();
+        	codeMap.forEach(function(v, k) {
+            	var content = `<li><span>${v}</span> <a href="javascript:void(0);" class="rem_btn">X</a></li>`;
+                $('#myList').append(content);
+            })
+        	tempMap = new Map(codeMap);
+        }
+	}, 2000);
+   });
+   
+</script>
