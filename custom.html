@@ -27,9 +27,12 @@
             });
         },
         oneditsave: function() {
-            this.inputs = $('#node-input-inputs').editableList('items').map(function(i) {
-                return $('#node-input-inputs-item-' + i).val();
-            }).toArray();
+            var inputs = [];
+            $('#node-input-inputs').editableList('items').each(function(i) {
+                var value = $(this).find('.node-input').val();
+                inputs.push(value);
+            });
+            this.inputs = inputs;
         }
     });
 </script>
