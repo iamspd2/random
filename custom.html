@@ -1,0 +1,38 @@
+<script type="text/javascript">
+    RED.nodes.registerType('custom-node', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value: ''}
+        },
+        inputs: N,
+        outputs: N,
+        icon: 'node-red/arrow-in.png',
+        label: function() {
+            return this.name || 'custom-node';
+        },
+        oneditprepare: function() {
+            var node = this;
+            var inputs = node.inputs;
+            var inputLabels = $('#node-input-labels');
+            inputLabels.empty();
+            for (var i = 0; i < inputs; i++) {
+                var inputLabel = $('<label for="node-input-' + i + '">Input ' + i + '</label><input type="text" id="node-input-' + i + '">');
+                inputLabels.append(inputLabel);
+            }
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="custom-node">
+    <div class="custom-node">
+        <div class="custom-node-left">
+            <div class="custom-node-header"></div>
+            <div class="custom-node-body"></div>
+        </div>
+        <div class="custom-node-right">
+            <div class="custom-node-header"></div>
+            <div class="custom-node-body"></div>
+        </div>
+    </div>
+</script>
