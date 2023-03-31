@@ -1,118 +1,60 @@
-<script type="text/javascript">
-  RED.nodes.registerType('switch-text', {
-    category: 'function',
-    color: '#a6bbcf',
-    defaults: {
-      name: {value: ''},
-      property: {value: '', required: true},
-      propertyType: {value: 'msg', required: true},
-      rules: {value: []},
-      checkall: {value: 'true'}
-    },
-    inputs: 1,
-    outputs: 2,
-    icon: 'node-red/switch.png',
-    label: function() {
-      return this.name || 'switch-text';
-    },
-    oneditprepare: function() {
-      // Create the rules table UI element
-      var node = this;
-      var table = $('#node-input-rules');
-      table.empty();
-      table.append($('<thead>').append($('<tr>').append($('<th>').text('Value'), $('<th>').text('Action'))));
-      var tbody = $('<tbody>');
-      table.append(tbody);
-      for (var i = 0; i < node.rules.length; i++) {
-        var rule = node.rules[i];
-        var tr = $('<tr>');
-        tr.append($('<td>').append($('<input>', {type: 'text', class: 'node-input-rule-value', value: rule.v})));
-        tr.append($('<td>').append($('<select>', {class: 'node-input-rule-action'})
-          .append($('<option>', {value: 'true', text: 'true', selected: rule.t}))
-          .append($('<option>', {value: 'false', text: 'false', selected: rule.f}))
-        )));
-        tbody.append(tr);
-      }
-
-      // Add a button to add new rules
-      var addButton = $('<a>', {class: 'node-input-rule-add', href: '#'});
-      addButton.text('Add rule');
-      addButton.click(function() {
-        tbody.append($('<tr>').append($('<td>').append($('<input>', {type: 'text', class: 'node-input-rule-value'})))
-          .append($('<td>').append($('<select>', {class: 'node-input-rule-action'})
-            .append($('<option>', {value: 'true', text: 'true'}))
-            .append($('<option>', {value: 'false', text: 'false'}))
-          )));
-      });
-      table.after(addButton);
-
-      // Add a button to remove rules
-      var removeButton = $('<a>', {class: 'node-input-rule-remove', href: '#'});
-      removeButton.text('Remove rule');
-      removeButton.click(function() {
-        if (tbody.children().length > 1) {
-          tbody.children().last().remove();
-        }
-      });
-      addButton.after(removeButton);
-    },
-    oneditsave: function() {
-      // Update the rules table in the node configuration
-      var rules = [];
-      var tbody = $('#node-input-rules > tbody');
-      tbody.children().each(function() {
-        var rule = {};
-        rule.v = $(this).find('.node-input-rule-value').val();
-        rule.t = $(this).find('.node-input-rule-action').val() === 'true';
-        rule.f = !rule.t;
-        rules.push(rule);
-      });
-      this.rules = rules;
-    }
-  });
-</script>
-
-<script type="text/x-red" data-template-name="switch-text">
+<script type="text/x-red" data-template-name="multi-text-input">
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
   </div>
   <div class="form-row">
-    <label for="node-input-property"><i class="fa fa-info-circle"></i> Property</label>
-    <input type="text" id="node-input-property" placeholder="Property">
-  </div>
-  <div class="form-row">
-    <label for="node-input-propertyType"><i class="fa fa-info-circle"></i> Property Type</label>
-    <select id="node-input-propertyType">
-      <option value="msg">msg</option>
-      <option value="flow">flow</option>
-      <option value="global">global</option>
-    </select>
-  </div>
-  <div class="form-row">
-    <label><i class="fa fa-table"></i> Rules</label>
-    <table id="node-input-rules" class="rules-table">
+    <label><i class="fa fa-table"></i> Input Fields</label>
+    <table id="node-input-fields" class="multi-input-table">
       <thead>
         <tr>
-          <th>Value</th>
-          <th>Action</th>
+          <th>Field Name</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><input type="text" class="node-input-rule-value"></td>
-          <td>
-            <select class="node-input-rule-action">
-              <option value="true">true</option>
-              <option value="false">false</option>
-            </select>
-          </td>
+          <td><input type="text" class="node-input-field"></td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div class="form-row">
-    <label for="node-input-checkall"><i class="fa fa-check-square"></i> Check all rules?</label>
-    <input type="checkbox" id="node-input-checkall">
-  </div>
 </script>
+
+RED.nodes.registerType('multi-text-input', {
+  category: 'input',
+  color: '#a6bbcf',
+  defaults: {
+    name: {value: ''},
+    fields: {value: [], required: true}
+  },
+  inputs: 0,
+  outputs: function() {
+    return this.fields.length;
+  },
+  icon: 'file.png',
+  label: function() {
+    return this.name || 'multi-text-input';
+  },
+  oneditprepare: function() {
+    var node = this;
+    var table = $('#node-input-fields');
+    var addButton = $('<button>Add Field</button>').click(function(event) {
+      event.preventDefault();
+      table.find('tbody').append('<tr><td><input type="text" class="node-input-field"></td></tr>');
+    });
+    table.after(addButton);
+
+    var fields = node.fields || [];
+    fields.forEach(function(field, i) {
+      table.find('tbody').append('<tr><td><input type="text" class="node-input-field" value="' + field + '"></td></tr>');
+    });
+  },
+  oneditsave: function() {
+    var node = this;
+    var fields = [];
+    $('#node-input-fields .node-input-field').each(function(i, field) {
+      fields.push($(field).val());
+    });
+    node.fields = fields;
+  }
+});
