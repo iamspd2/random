@@ -1,38 +1,42 @@
 <script type="text/javascript">
-    RED.nodes.registerType('custom-node', {
+    RED.nodes.registerType('multi-output', {
         category: 'function',
         color: '#a6bbcf',
         defaults: {
-            name: {value: ''}
+            inputs: {value: [], required: true},
+            outputs: {value: 1, required: true}
         },
-        inputs: N,
-        outputs: N,
-        icon: 'node-red/arrow-in.png',
+        inputs: 1,
+        outputs: function() {
+            return this.inputs.length;
+        },
+        icon: 'node-red/switch.png',
         label: function() {
-            return this.name || 'custom-node';
+            return this.name || 'multi-output';
         },
         oneditprepare: function() {
             var node = this;
-            var inputs = node.inputs;
-            var inputLabels = $('#node-input-labels');
-            inputLabels.empty();
-            for (var i = 0; i < inputs; i++) {
-                var inputLabel = $('<label for="node-input-' + i + '">Input ' + i + '</label><input type="text" id="node-input-' + i + '">');
-                inputLabels.append(inputLabel);
-            }
+            $('#node-input-inputs').editableList({
+                addItem: function(container, i, opt) {
+                    var element = $('<div>', {class: 'form-row'}).appendTo(container);
+                    $('<label>', {for: 'node-input-inputs-item-' + i}).text('Item ' + i).appendTo(element);
+                    $('<input>', {id: 'node-input-inputs-item-' + i, type: 'text', class: 'node-input'}).val(opt).appendTo(element);
+                },
+                sortable: true,
+                removable: true
+            });
+        },
+        oneditsave: function() {
+            this.inputs = $('#node-input-inputs').editableList('items').map(function(i) {
+                return $('#node-input-inputs-item-' + i).val();
+            }).toArray();
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="custom-node">
-    <div class="custom-node">
-        <div class="custom-node-left">
-            <div class="custom-node-header"></div>
-            <div class="custom-node-body"></div>
-        </div>
-        <div class="custom-node-right">
-            <div class="custom-node-header"></div>
-            <div class="custom-node-body"></div>
-        </div>
+<script type="text/html" data-template-name="multi-output">
+    <div class="form-row">
+        <label for="node-input-inputs">Inputs</label>
+        <ol id="node-input-inputs" class="editable-list"></ol>
     </div>
 </script>
